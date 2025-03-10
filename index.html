@@ -1,131 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shooting Game</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script type="module">
-        import * as CANNON from 'https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js';
-    </script>
-    <style>
-        body { margin: 0; overflow: hidden; }
-        canvas { display: block; }
-        #score { position: absolute; top: 10px; left: 10px; color: white; font-size: 24px; }
-        #time { position: absolute; top: 10px; right: 10px; color: white; font-size: 24px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced Gun Shooting Game</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="game-container">
     <div id="score">Score: 0</div>
-    <div id="time">Time: 300s</div>
-    <script type="module">
-        import * as CANNON from 'https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js';
-
-        let score = 0;
-        let elapsedTime = 0;
-        let remainingTime = 300; // 5 minutes
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-
-        const world = new CANNON.World();
-        world.gravity.set(0, -9.82, 0);
-
-        // Ground
-        const groundGeometry = new THREE.PlaneGeometry(20, 20);
-        const groundMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, side: THREE.DoubleSide });
-        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-        ground.rotation.x = -Math.PI / 2;
-        scene.add(ground);
-
-        const groundBody = new CANNON.Body({ mass: 0, shape: new CANNON.Plane() });
-        groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
-        world.addBody(groundBody);
-
-        // Moving Target boards with unpredictable movement
-        const targets = [];
-        for (let i = 0; i < 20; i++) {
-            const targetGeometry = new THREE.BoxGeometry(1, 1, 0.2);
-            const targetMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-            const target = new THREE.Mesh(targetGeometry, targetMaterial);
-            target.position.set((i % 10) * 2 - 9, Math.floor(i / 10) * 2 + 1, -10);
-            scene.add(target);
-            
-            const targetBody = new CANNON.Body({ mass: 1, shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.1)) });
-            targetBody.position.copy(target.position);
-            world.addBody(targetBody);
-            
-            targets.push({ mesh: target, body: targetBody, speedX: Math.random() * 0.2 - 0.1, speedY: Math.random() * 0.1 - 0.05 });
-        }
-
-        // Function to move targets unpredictably
-        function moveTargets() {
-            if (remainingTime > 0) {
-                elapsedTime += 1 / 60;
-                remainingTime -= 1 / 60;
-                document.getElementById("time").innerText = "Time: " + Math.max(0, Math.floor(remainingTime)) + "s";
-                
-                targets.forEach(target => {
-                    target.body.position.x += target.speedX;
-                    target.body.position.y += target.speedY;
-                    
-                    if (target.body.position.x > 9 || target.body.position.x < -9) {
-                        target.speedX = (Math.random() * 0.2 - 0.1);
-                    }
-                    if (target.body.position.y > 10 || target.body.position.y < 1) {
-                        target.speedY = (Math.random() * 0.1 - 0.05);
-                    }
-                });
-            }
-        }
-
-        // Shooting projectiles with Enter key
-        function shootProjectile() {
-            if (remainingTime <= 0) return; // Stop shooting when time runs out
-
-            const ballGeometry = new THREE.SphereGeometry(0.2, 16, 16);
-            const ballMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-            const ball = new THREE.Mesh(ballGeometry, ballMaterial);
-            scene.add(ball);
-            
-            const ballBody = new CANNON.Body({ mass: 1, shape: new CANNON.Sphere(0.2) });
-            ballBody.position.copy(camera.position);
-            ballBody.velocity.set(0, 0, -10);
-            world.addBody(ballBody);
-            
-            function checkCollision() {
-                targets.forEach((target, index) => {
-                    const distance = target.body.position.vsub(ballBody.position).length();
-                    if (distance < 1) {
-                        scene.remove(target.mesh);
-                        world.removeBody(target.body);
-                        targets.splice(index, 1);
-                        score += 10;
-                        document.getElementById("score").innerText = "Score: " + score;
-                    }
-                });
-            }
-            
-            setInterval(checkCollision, 100);
-        }
-
-        document.addEventListener("keydown", (event) => {
-            if (event.key === "Enter") {
-                shootProjectile();
-            }
-        });
-
-        camera.position.set(0, 2, 5);
-        function animate() {
-            requestAnimationFrame(animate);
-            world.step(1 / 60);
-            moveTargets();
-            targets.forEach(target => target.mesh.position.copy(target.body.position));
-            renderer.render(scene, camera);
-        }
-        animate();
-    </script>
+    <div id="timer">Time: 60</div>
+    <div id="player"></div>
+  </div>
+  <audio id="shootSound" src="sounds/shoot.mp3"></audio>
+  <audio id="hitSound" src="sounds/hit.mp3"></audio>
+  <script src="script.js"></script>
 </body>
 </html>

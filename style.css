@@ -1,0 +1,56 @@
+body {
+  margin: 0;
+  overflow: hidden;
+ /* background-color: #87CEEB; /* Light blue sky background */
+  background-image: url("images/bg.jpg");
+}
+
+.game-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+#player {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 150px;
+  height: 150px;
+  background-image: url('images/player.png');
+  background-size: cover;
+}
+
+.target {
+  position: absolute;
+  width: 100px;
+  height: 50px;
+  background-image: url('images/target.png');
+  
+  background-size: cover;
+}
+
+.bullet {
+  position: absolute;
+  width: 10px;
+  height: 20px;
+  background-color: yellow;
+  border-radius: 5px;
+}
+
+#score, #timer {
+  position: absolute;
+  top: 10px;
+  font-size: 24px;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+#score {
+  left: 20px;
+}
+
+#timer {
+  right: 20px;
+}
